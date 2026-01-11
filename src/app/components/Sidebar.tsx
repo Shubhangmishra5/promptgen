@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 type PromptItem = {
   id: string;
@@ -8,22 +8,18 @@ type PromptItem = {
   favorite: boolean;
 };
 
-export default function Sidebar({
-  onSelect,
-}: {
-  onSelect: (prompt: string) => void;
-}) {
-  const [history, setHistory] = useState<PromptItem[]>([]);
+function loadHistory(): PromptItem[] {
+  if (typeof window === "undefined") return [];
 
-  useEffect(() => {
-    const storedRaw = localStorage.getItem("prompt-history");
-    if (!storedRaw) return;
+  const storedRaw = localStorage.getItem("prompt-history");
+  if (!storedRaw) return [];
 
-    const stored: unknown = JSON.parse(storedRaw);
+  try {
+    const stored = JSON.parse(storedRaw);
 
-    if (!Array.isArray(stored)) return;
+    if (!Array.isArray(stored)) return [];
 
-    const normalized: PromptItem[] = stored.map((item) => {
+    return stored.map((item) => {
       if (typeof item === "string") {
         return {
           id: crypto.randomUUID(),
@@ -37,11 +33,10 @@ export default function Sidebar({
         item !== null &&
         "content" in item
       ) {
-        const typed = item as PromptItem;
         return {
-          id: typed.id || crypto.randomUUID(),
-          content: typed.content,
-          favorite: Boolean(typed.favorite),
+          id: item.id || crypto.randomUUID(),
+          content: item.content || "",
+          favorite: Boolean(item.favorite),
         };
       }
 
@@ -51,10 +46,17 @@ export default function Sidebar({
         favorite: false,
       };
     });
+  } catch {
+    return [];
+  }
+}
 
-    // ✅ SAFE: single state update after computation
-    setHistory(normalized);
-  }, []);
+export default function Sidebar({
+  onSelect,
+}: {
+  onSelect: (prompt: string) => void;
+}) {
+  const [history, setHistory] = useState<PromptItem[]>(loadHistory);
 
   function toggleFavorite(id: string) {
     const updated = history.map((item) =>
