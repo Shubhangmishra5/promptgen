@@ -16,26 +16,45 @@ export default function Sidebar({
   const [history, setHistory] = useState<PromptItem[]>([]);
 
   useEffect(() => {
-    const stored = JSON.parse(
-      localStorage.getItem("prompt-history") || "[]"
-    );
+    const storedRaw = localStorage.getItem("prompt-history");
+    if (!storedRaw) return;
 
-    // 🔄 MIGRATE old string-based history to object format
-    const normalized = stored.map((item: any) => {
+    const stored: unknown = JSON.parse(storedRaw);
+
+    if (!Array.isArray(stored)) return;
+
+    const normalized: PromptItem[] = stored.map((item) => {
       if (typeof item === "string") {
         return {
-          id: Date.now().toString() + Math.random(),
+          id: crypto.randomUUID(),
           content: item,
           favorite: false,
         };
       }
-      return item;
+
+      if (
+        typeof item === "object" &&
+        item !== null &&
+        "content" in item
+      ) {
+        const typed = item as PromptItem;
+        return {
+          id: typed.id || crypto.randomUUID(),
+          content: typed.content,
+          favorite: Boolean(typed.favorite),
+        };
+      }
+
+      return {
+        id: crypto.randomUUID(),
+        content: "",
+        favorite: false,
+      };
     });
 
+    // ✅ SAFE: single state update after computation
     setHistory(normalized);
-    localStorage.setItem("prompt-history", JSON.stringify(normalized));
   }, []);
-
 
   function toggleFavorite(id: string) {
     const updated = history.map((item) =>
@@ -43,6 +62,7 @@ export default function Sidebar({
         ? { ...item, favorite: !item.favorite }
         : item
     );
+
     setHistory(updated);
     localStorage.setItem("prompt-history", JSON.stringify(updated));
   }
@@ -69,8 +89,7 @@ export default function Sidebar({
               className="cursor-pointer text-zinc-200 hover:underline"
               onClick={() => onSelect(item.content)}
             >
-              {item.content?.slice(0, 70) || "Invalid prompt"}...
-
+              {item.content.slice(0, 70)}…
             </div>
 
             <button
