@@ -1,3 +1,10 @@
+PromptGen is a SaaS-style AI prompt generator built as a side project during free time.
+
+It’s an early-stage prototype focused on simplifying prompt creation for professionals using AI tools in their daily workflows.
+
+The project is actively evolving, and improvements will be added over time based on feedback and real-world usage.
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
