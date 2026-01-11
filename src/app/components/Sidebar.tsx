@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+
+import { useState, useEffect  } from "react";
 
 type PromptItem = {
   id: string;
@@ -56,6 +57,15 @@ export default function Sidebar({
 }: {
   onSelect: (prompt: string) => void;
 }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+
+
+
   const [history, setHistory] = useState<PromptItem[]>(loadHistory);
 
   function toggleFavorite(id: string) {
@@ -68,9 +78,14 @@ export default function Sidebar({
     setHistory(updated);
     localStorage.setItem("prompt-history", JSON.stringify(updated));
   }
+  if (!mounted) {
+    return null;
+  }
+
 
   return (
-    <aside className="w-72 bg-zinc-900 border-r border-zinc-800 p-4 overflow-y-auto">
+    <aside className="w-64 md:w-72 bg-zinc-900 border-r border-zinc-800 p-4 overflow-y-auto h-full">
+
       <h2 className="text-lg font-semibold mb-3">
         Prompt History
       </h2>

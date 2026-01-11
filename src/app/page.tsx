@@ -47,6 +47,7 @@ const TEMPLATES = {
 };
 
 export default function HomePage() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [goal, setGoal] = useState("");
   const [persona, setPersona] = useState("");
   const [context, setContext] = useState("");
@@ -177,10 +178,39 @@ function openAnyAI(text: string) {
 
   return (
     <div className="flex h-screen bg-zinc-950 text-white">
-      <Sidebar onSelect={loadPrompt} />
+      {/* Mobile overlay (only when sidebar is open) */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div
+        className={`fixed z-50 h-full bg-zinc-900 transition-transform
+          md:static md:translate-x-0
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
+      >
+        <Sidebar
+          onSelect={(prompt) => {
+            loadPrompt(prompt);
+            setSidebarOpen(false);
+          }}
+        />
+      </div>
+
 
 
       <main className="flex-1 p-6 overflow-y-auto">
+        <button
+          className="md:hidden mb-4 px-3 py-2 bg-zinc-800 rounded"
+          onClick={() => setSidebarOpen(true)}
+        >
+          ☰ Menu
+        </button>
+
         <h1 className="text-2xl font-semibold mb-1">
           PromptGen
         </h1>
