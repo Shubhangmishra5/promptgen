@@ -8,11 +8,11 @@ export default function PromptCard({ text }: { text: string }) {
       await navigator.clipboard.writeText(text);
       alert("Copied prompt to clipboard");
     } catch {
-      alert("Copy failed — try manually");
+      alert("Copy failed, try manually.");
     }
   }
   function openChatGPT() {
-    const url = `https://chat.openai.com/?q=${encodeURIComponent(text)}`;
+    const url = `https://chatgpt.com/?q=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
   }
   return (
